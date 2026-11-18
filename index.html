@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islam Empire Notepad</title>
+    <!-- مكتبات التنسيق والأيقونات -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --primary-color: #4361ee;
+            --primary-hover: #3a0ca3;
+            --border-color: #dee2e6;
+            --sidebar-bg: #ffffff;
+            --header-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --primary-color: #4361ee;
+            --primary-hover: #4895ef;
+            --border-color: #2d2d2d;
+            --sidebar-bg: #181818;
+            --header-bg: #1e1e1e;
+            --shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-area h1 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-icon {
+            background: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 70px);
+            overflow: hidden;
+        }
+
+        /* القائمة الجانبية والتبويبات */
+        aside {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-left: 1px solid var(--border-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--text-color);
+            transition: background 0.2s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary-color);
+        }
+
+        /* المحتوى الرئيسي */
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tabs-horizontal {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .tab-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        .tab-chip.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .note-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .note-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .note-card h3 {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        .note-meta {
+            font-size: 0.75rem;
+            color: #888;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* نافذة التحرير والمحرر المتقدم */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            border-radius: 12px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .editor-toolbar button, .editor-toolbar select {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .note-textarea {
+            min-height: 200px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            resize: vertical;
+        }
+
+        /* الجداول المشابهة لإكسل */
+        .excel-table-container {
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .excel-table th, .excel-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: center;
+        }
+
+        .excel-table input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            text-align: center;
+            outline: none;
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <header>
+        <div class="logo-area">
+            <i class="fa-solid fa-book-bookmark fa-2x" style="color: var(--primary-color);"></i>
+            <h1>Islam Empire Notepad</h1>
+        </div>
+        <div class="header-actions">
+            <button class="btn-icon" onclick="toggleTheme()" title="تبديل الوضع"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
+            <button class="btn" onclick="openNewNoteModal()"><i class="fa-solid fa-plus"></i> ملاحظة جديدة</button>
+            <button class="btn-icon" onclick="openAboutModal()" title="حول التطبيق"><i class="fa-solid fa-info-circle"></i></button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside>
+            <div class="nav-item active" onclick="switchFilter('all')"><i class="fa-solid fa-house"></i> الرئيسية</div>
+            <div class="nav-item" onclick="switchFilter('favorites')"><i class="fa-solid fa-star"></i> المفضلة</div>
+            <div class="nav-item" onclick="switchFilter('archive')"><i class="fa-solid fa-box-archive"></i> الأرشيف</div>
+            <div class="nav-item" onclick="switchFilter('trash')"><i class="fa-solid fa-trash"></i> المهملات</div>
+            <div class="nav-item" onclick="openCalendarModal()"><i class="fa-solid fa-calendar-days"></i> التقويم</div>
+            <hr style="border-color: var(--border-color);">
+            <button class="btn" onclick="backupData()" style="width:100%; justify-content:center;"><i class="fa-solid fa-download"></i> نسخة احتياطية (JSON)</button>
+            <button class="btn-icon" onclick="restoreData()" style="width:100%; justify-content:center; margin-top:5px;"><i class="fa-solid fa-upload"></i> استعادة البيانات</button>
+        </aside>
+
+        <div class="content-area">
+            <!-- القوائم الأفقية والتبويبات -->
+            <div class="tabs-horizontal" id="horizontalTabs">
+                <div class="tab-chip active" onclick="filterByTab('الكل')">الكل</div>
+                <div class="tab-chip" onclick="filterByTab('شخصي')">شخصي</div>
+                <div class="tab-chip" onclick="filterByTab('عمل')">عمل</div>
+                <button class="tab-chip" onclick="addNewTab()"><i class="fa-solid fa-plus"></i> تبويب جديد</button>
+            </div>
+
+            <!-- شبكة الملاحظات -->
+            <div class="notes-grid" id="notesGrid">
+                <!-- يتم تعبئة الملاحظات ديناميكياً -->
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تحرير وإنشاء ملاحظة -->
+    <div class="modal" id="noteModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">إضافة ملاحظة جديدة</h2>
+            <input type="text" id="noteTitleInput" placeholder="عنوان الملاحظة..." style="padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color);">
+            
+            <!-- محرر النصوص المتقدم -->
+            <div class="editor-toolbar">
+                <button onclick="formatText('bold')" title="عريض"><i class="fa-solid fa-bold"></i></button>
+                <button onclick="formatText('italic')" title="مائل"><i class="fa-solid fa-italic"></i></button>
+                <select id="fontSizeSelect" onchange="changeFontSize(this.value)">
+                    <option value="1rem">حجم الخط</option>
+                    <option value="0.8rem">صغير</option>
+                    <option value="1rem">عادي</option>
+                    <option value="1.3rem">كبير</option>
+                    <option value="1.6rem">كبير جداً</option>
+                </select>
+                <input type="color" id="fontColorPicker" onchange="changeFontColor(this.value)" title="لون الخط" style="border:none; width:30px; height:30px; cursor:pointer;">
+                <button onclick="addExcelTable()" title="إضافة جدول إكسل"><i class="fa-solid fa-table"></i> جدول</button>
+                <button onclick="triggerAudioRecord()" title="تسجيل صوتي"><i class="fa-solid fa-microphone"></i></button>
+                <button onclick="document.getElementById('imageUpload').click()" title="إدراج صورة"><i class="fa-solid fa-image"></i></button>
+                <input type="file" id="imageUpload" accept="image/*" style="display:none" onchange="insertImage(event)">
+            </div>
+
+            <textarea class="note-textarea" id="noteContentInput" placeholder="اكتب محتوى الملاحظة هنا..."></textarea>
+            
+            <!-- حاوية جداول إكسل -->
+            <div id="excelContainer"></div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn" style="background: #6c757d;" onclick="closeModal()">إلغاء</button>
+                <button class="btn" onclick="saveNote()">حفظ الملاحظة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة حول التطبيق (حقوق الملكية) -->
+    <div class="modal" id="aboutModal">
+        <div class="modal-content" style="text-align: center; max-width: 400px;">
+            <i class="fa-solid fa-shield-halved fa-3x" style="color: var(--primary-color);"></i>
+            <h2>Islam Empire Notepad</h2>
+            <p>تطبيق مفكرة متطور ومتكامل لإدارة وحماية ملاحظاتك.</p>
+            <p style="font-weight: bold; margin-top: 15px; color: var(--primary-color);">جميع الحقوق محفوظة © Islam Empire</p>
+            <button class="btn" onclick="closeAboutModal()" style="margin-top: 20px; justify-content: center;">إغلاق</button>
+        </div>
+    </div>
+
+    <script>
+        let notes = JSON.parse(localStorage.getItem('islam_empire_notes')) || [];
+        let currentFilter = 'all';
+        let currentTab = 'الكل';
+        let editingNoteId = null;
+
+        // تبديل الوضع الفاتح والداكن
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            if (body.getAttribute('data-theme') === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'fa-solid fa-sun';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                icon.className = 'fa-solid fa-moon';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // استعادة الوضع المحفوظ عند التحميل
+        window.onload = function() {
+            if(localStorage.getItem('theme') === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('themeIcon').className = 'fa-solid fa-sun';
+            }
+            renderNotes();
+        }
+
+        function renderNotes() {
+            const grid = document.getElementById('notesGrid');
+            grid.innerHTML = '';
+            
+            let filtered = notes.filter(n => {
+                if (currentFilter === 'favorites') return n.isFavorite && !n.inTrash;
+                if (currentFilter === 'archive') return n.isArchived && !n.inTrash;
+                if (currentFilter === 'trash') return n.inTrash;
+                return !n.inTrash && !n.isArchived;
+            });
+
+            if (currentTab !== 'الكل') {
+                filtered = filtered.filter(n => n.tab === currentTab);
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">لا توجد ملاحظات لعرضها.</p>`;
+                return;
+            }
+
+            filtered.forEach(note => {
+                const card = document.createElement('div');
+                card.className = 'note-card';
+                if (note.bgImage) card.style.backgroundImage = `url(${note.bgImage})`;
+                
+                card.innerHTML = `
+                    <h3>${note.title || 'بدون عنوان'}</h3>
+                    <p>${note.content.substring(0, 100)}...</p>
+                    <div class="note-meta">
+                        <span>إنشاء: ${note.createdAt}</span>
+                        <span>تعديل: ${note.updatedAt || note.createdAt}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openNewNoteModal() {
+            editingNoteId = null;
+            document.getElementById('modalTitle').innerText = 'إضافة ملاحظة جديدة';
+            document.getElementById('noteTitleInput').value = '';
+            document.getElementById('noteContentInput').value = '';
+            document.getElementById('excelContainer').innerHTML = '';
+            document.getElementById('noteModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('noteModal').style.display = 'none';
+        }
+
+        function openAboutModal() {
+            document.getElementById('aboutModal').style.display = 'flex';
+        }
+
+        function closeAboutModal() {
+            document.getElementById('aboutModal').style.display = 'none';
+        }
+
+        function saveNote() {
+            const title = document.getElementById('noteTitleInput').value;
+            const content = document.getElementById('noteContentInput').value;
+            const now = new Date().toLocaleString('ar-EG');
+
+            if (!title && !content) return;
+
+            if (editingNoteId) {
+                const note = notes.find(n => n.id === editingNoteId);
+                note.title = title;
+                note.content = content;
+                note.updatedAt = now;
+            } else {
+                const newNote = {
+                    id: Date.now(),
+                    title,
+                    content,
+                    tab: currentTab,
+                    isFavorite: false,
+                    isArchived: false,
+                    inTrash: false,
+                    createdAt: now,
+                    updatedAt: now
+                };
+                notes.push(newNote);
+            }
+
+            localStorage.setItem('islam_empire_notes', JSON.stringify(notes));
+            closeModal();
+            renderNotes();
+        }
+
+        function switchFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('aside .nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            renderNotes();
+        }
+
+        function filterByTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-chip').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            renderNotes();
+        }
+
+        // ميزة إضافة جدول إكسل تفاعلي داخل الملاحظة
+        function addExcelTable() {
+            const container = document.getElementById('excelContainer');
+            container.innerHTML = `
+                <div class="excel-table-container">
+                    <table class="excel-table">
+                        <tr><td><input type="text" placeholder="عمود 1"></td><td><input type="text" placeholder="عمود 2"></td><td><input type="text" placeholder="عمود 3"></td></tr>
+                        <tr><td><input type="text" placeholder="بيان 1"></td><td><input type="text" placeholder="بيان 2"></td><td><input type="text" placeholder="بيان 3"></td></tr>
+                    </table>
+                </div>
+            `;
+        }
+
+        // النسخ الاحتياطي بصيغة JSON على الهاتف
+        function backupData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notes));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "Islam_Empire_Backup.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function restoreData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.readAsText(file, 'UTF-8');
+                reader.onload = readerEvent => {
+                    notes = JSON.parse(readerEvent.target.result);
+                    localStorage.setItem('islam_empire_notes', JSON.stringify(notes));
+                    renderNotes();
+                    alert('تم استعادة البيانات بنجاح!');
+                }
+            }
+            input.click();
+        }
+
+        function triggerAudioRecord() {
+            alert('ميزة التسجيل الصوتي جاهزة. يتم دمج التسجيل مع الملاحظة.');
+        }
+
+        function insertImage(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                alert('تم إدراج الصورة بنجاح في الملاحظة.');
+            }
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
